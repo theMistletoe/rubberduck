@@ -11,7 +11,7 @@
     "@heroicons/react": "^2.1.5",
     "@tailwindcss/forms": "^0.5.8",
     "@vercel/analytics": "^0.1.8",
-    "ai": "^3.4.20",
+    "ai": "^3.4.33",
     "core-js": "^3.39.0",
     "next": "^14.2.18",
     "openai-edge": "^1.2.0",
