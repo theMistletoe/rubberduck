@@ -17,7 +17,7 @@
     "openai-edge": "^1.2.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-hook-form": "^7.55.0",
+    "react-hook-form": "^7.56.1",
     "react-hot-toast": "^2.5.2",
     "react-markdown": "^9.1.0",
     "react-speech-recognition": "^3.10.0",
