@@ -7,14 +7,16 @@ import Image from 'next/image';
 import { useRef, useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export default function Page() {
-  const [status, setStatus] = useState<'init'|'listning'|'typing'|'result'>('init')
+  const [pageStatus, setPageStatus] = useState<'init'|'listning'|'typing'|'result'>('init')
   const [thinking, setThinking] = useState('');
+  const [input, setInput] = useState('');
   const bioRef = useRef<null | HTMLDivElement>(null);
 
   const {
@@ -34,7 +36,7 @@ export default function Page() {
       continuous: true,
       language: 'ja-JP',
     });
-    setStatus('listning')
+    setPageStatus('listning')
   };
 
   const handleEnd = () => {
@@ -42,32 +44,44 @@ export default function Page() {
     setThinking(transcript);
     SpeechRecognition.stopListening();
     resetTranscript();
-    setStatus('typing')
+    setPageStatus('typing')
   }
 
-  const handleChange = (e: any) => {
-    handleInputChange(e);
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
     setThinking(e.target.value);
   }
   
-  const { input, setInput, handleInputChange, handleSubmit, isLoading, messages } =
+  const { sendMessage, status, messages } =
     useChat({
-      body: {
-        thinking 
-      },
-      onResponse() {
+      transport: new DefaultChatTransport({
+        api: '/api/chat',
+      }),
+      onFinish() {
         scrollToBios();
       },
     });
 
-  const onSubmit = (e: any) => {
-    console.log('thinking',thinking);
-    handleSubmit(e);
-    setStatus('result')
+  const isLoading = status === 'submitted' || status === 'streaming';
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('thinking', thinking);
+    sendMessage(
+      { text: input },
+      { body: { thinking } }
+    );
+    setPageStatus('result')
   };
 
   const lastMessage = messages[messages.length - 1];
-  const generatedBios = lastMessage?.role === "assistant" ? lastMessage.content : null;
+  // 新APIではmessage.partsからテキストを取得
+  const generatedSummery = lastMessage?.role === "assistant" 
+    ? lastMessage.parts
+        .filter((part): part is { type: 'text'; text: string } => part.type === 'text')
+        .map(part => part.text)
+        .join('')
+    : null;
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
@@ -79,7 +93,7 @@ export default function Page() {
           src={'/rubberduck.png'}
           alt={'rubberduck'}
         />
-        {status === 'init' && (
+        {pageStatus === 'init' && (
           <>
             <div>
               <p>あなたのモヤモヤ悩んでいることを、とにかく話してみて！</p>
@@ -92,7 +106,7 @@ export default function Page() {
             </button>
           </>
         )}
-        {status === 'listning' && listening && (
+        {pageStatus === 'listning' && listening && (
           <>
             <p>{transcript || 'あなたが話し始めるのを待っています…'}</p>
             <button
@@ -106,7 +120,7 @@ export default function Page() {
             </div>
           </>
         )}
-        {status === 'typing' && (
+        {pageStatus === 'typing' && (
           <>   
             <form className="w-full" onSubmit={onSubmit}>
               <div className="flex mt-10 items-center space-x-3">
@@ -147,9 +161,9 @@ export default function Page() {
             </form>
           </>
         )}
-        {status === 'result' && (
+        {pageStatus === 'result' && (
           <output className="space-y-10 my-10">
-            {generatedBios ? (
+            {generatedSummery ? (
               <>
                 <div>
                   <h2
@@ -160,7 +174,7 @@ export default function Page() {
                   </h2>
                 </div>
                 <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} className='markdown'>{generatedBios}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} className='markdown'>{generatedSummery}</ReactMarkdown>
                 </div>
               </>
             ) : <p>うーん…ちょっとまってね…</p>}
