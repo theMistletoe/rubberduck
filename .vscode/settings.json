@@ -1,3 +1,23 @@
 {
-  "dotenv.enableAutocloaking": false
+  "dotenv.enableAutocloaking": false,
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#f8677e",
+    "activityBar.background": "#f8677e",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#64f748",
+    "activityBarBadge.foreground": "#15202b",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#f8677e",
+    "statusBar.background": "#f63655",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#f8677e",
+    "statusBarItem.remoteBackground": "#f63655",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#f63655",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#f6365599",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.remoteColor": "#f63655"
 }
