@@ -1,8 +1,8 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText, UIMessage, convertToModelMessages } from 'ai';
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+// Allow streaming responses up to 300 seconds (Vercel Proの最大値)
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const { messages, thinking }: { messages: UIMessage[]; thinking?: string } = await req.json();
@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     temperature: 0.7,
     system: systemPrompt,
     messages: finalMessages,
+    maxTokens: 16384, // 出力トークン上限（モデルの最大値に近い値）
   });
 
   return result.toUIMessageStreamResponse();
