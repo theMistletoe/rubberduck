@@ -24,8 +24,7 @@ export async function POST(req: Request) {
     model: openai('gpt-5.2'),
     temperature: 0.7,
     system: systemPrompt,
-    messages: finalMessages,
-    maxTokens: 16384, // 出力トークン上限（モデルの最大値に近い値）
+    messages: finalMessages
   });
 
   return result.toUIMessageStreamResponse();
